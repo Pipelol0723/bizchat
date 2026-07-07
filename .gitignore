@@ -34,3 +34,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# tooling / caches locales (no publicar)
+.claude/
+.wwebjs_cache/
+
+# documentos internos del proyecto (se quedan en local, no en el repo público)
+# — contienen estrategia de precios, prompts de construcción y el handoff con datos de referencia
+CLAUDE.md
+PLAN.md
+prompt_inicial.md
+setup.md
+design_handoff_cafe_noire/
