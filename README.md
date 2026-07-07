@@ -4,7 +4,10 @@ Widget de chatbot configurable con IA multi-proveedor (OpenAI, Claude, Gemini) q
 negocio puede embeber en su sitio web. El dueño define su negocio en un solo archivo y el bot
 responde a los clientes con contexto real: menú, horarios, servicios, ubicación y reservas.
 
+### 🔗 [Ver demo en vivo →](https://bizchat-delta.vercel.app)
+
 **Demo:** _Café Noire_ — una cafetería ficticia (negocio de demostración) con menú, horarios y reservas.
+Abre el sitio, toca cualquier pregunta del hero y el asistente responde en streaming.
 
 > Proyecto de portafolio freelance de **Andrés Felipe Céspedes**.
 

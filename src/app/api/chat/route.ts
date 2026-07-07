@@ -76,11 +76,10 @@ export async function POST(req: Request) {
 
   return result.toDataStreamResponse({
     getErrorMessage: (error) => {
-      // Registra el error completo en los logs de Vercel y devuelve un mensaje
-      // acotado para poder depurar (p. ej. errores de autenticación del proveedor).
+      // El error completo queda en los logs de Vercel (para depurar), pero al
+      // usuario final NO se le filtran detalles del proveedor: mensaje amable.
       console.error('[api/chat] error de streaming:', error)
-      const msg = error instanceof Error ? error.message : String(error)
-      return msg.slice(0, 300)
+      return 'Uy, tuve un problema para responder ahora mismo 😅 Intenta de nuevo en un momento.'
     },
   })
 }
