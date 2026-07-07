@@ -74,5 +74,13 @@ export async function POST(req: Request) {
     temperature: 0.5,
   })
 
-  return result.toDataStreamResponse()
+  return result.toDataStreamResponse({
+    getErrorMessage: (error) => {
+      // Registra el error completo en los logs de Vercel y devuelve un mensaje
+      // acotado para poder depurar (p. ej. errores de autenticación del proveedor).
+      console.error('[api/chat] error de streaming:', error)
+      const msg = error instanceof Error ? error.message : String(error)
+      return msg.slice(0, 300)
+    },
+  })
 }
