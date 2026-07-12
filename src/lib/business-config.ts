@@ -84,3 +84,30 @@ REGLAS (impórtantes, síguelas siempre):
 6. Respuestas breves y claras, en español, con el tono indicado.
 7. Escribe en texto plano, SIN formato Markdown (no uses ** para negrita ni # para títulos). Para listas usa viñetas con "• ".`
 }
+
+/**
+ * Respuestas instantáneas y pre-programadas (0 tokens) para las preguntas
+ * sugeridas del demo. Se arman desde `businessConfig`, así que siempre coinciden
+ * con el menú/horarios reales. Devuelve `null` si la pregunta no es una sugerida
+ * (en ese caso la responde la IA). Esto abarata el demo: los chips no gastan API.
+ */
+export function cannedAnswerFor(question: string): string | null {
+  const b = businessConfig
+  const menu = b.menu.map((m) => `• ${m.name} — ${m.price} (${m.description})`).join('\n')
+  const hours = Object.entries(b.hours)
+    .map(([dia, horario]) => `• ${dia}: ${horario}`)
+    .join('\n')
+
+  switch (question.trim()) {
+    case '¿Cuál es el menú?':
+      return `¡Claro! ☕ Este es nuestro menú:\n\n${menu}\n\nTodo lo hacemos con cuidado y en casa. ¿Te antojo algo?`
+    case '¿Tienen WiFi para trabajar?':
+      return `¡Sí! 💻 ${b.wifi}\n\nEntre semana en la mañana es lo más tranquilo para trabajar a gusto.`
+    case '¿Cómo hago una reserva?':
+      return `Con gusto 🪑 Para grupos de 4+ personas recomendamos reservar.\n\nEscríbenos por ${b.contact} con la fecha, la hora y el número de personas, y te confirmamos disponibilidad.`
+    case '¿A qué hora abren?':
+      return `Nuestro horario es:\n\n${hours}\n\n¡Te esperamos en ${b.name}! ☕`
+    default:
+      return null
+  }
+}

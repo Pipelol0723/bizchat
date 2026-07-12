@@ -1,11 +1,11 @@
 'use client'
 
 import { useChat } from 'ai/react'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { ChatMessages } from '@/components/ChatMessages'
 import { ChatInput } from '@/components/ChatInput'
 import { useChatPanel } from '@/components/ChatProvider'
-import { businessConfig } from '@/lib/business-config'
+import { businessConfig, cannedAnswerFor } from '@/lib/business-config'
 
 // Componente principal del widget: botón flotante (FAB) + panel de chat.
 // El modelo de IA lo decide el dueño en el backend (variable DEFAULT_PROVIDER);
@@ -14,7 +14,10 @@ export function ChatWidget() {
   const { isOpen, open, close, pending, consumePending } = useChatPanel()
   const [menuOpen, setMenuOpen] = useState(false)
   const [showBadge, setShowBadge] = useState(false)
+  // `cannedTyping`: mostrando la respuesta pre-programada de un chip (sin API).
+  const [cannedTyping, setCannedTyping] = useState(false)
   const hasOpenedRef = useRef(false)
+  const cannedTimer = useRef<ReturnType<typeof setTimeout>>()
 
   const { messages, input, handleInputChange, handleSubmit, isLoading, append, setMessages } =
     useChat({
@@ -50,20 +53,67 @@ export function ChatWidget() {
     }
   }, [isOpen])
 
+  const busy = isLoading || cannedTyping
+
+  // Entrega una pregunta sugerida (chip): respuesta pre-programada al instante,
+  // SIN llamar al API (0 tokens). Un breve "escribiendo…" la hace sentir natural.
+  // Si la pregunta no tuviera respuesta pre-programada, cae a la IA.
+  const deliverSuggested = useCallback(
+    (question: string) => {
+      const answer = cannedAnswerFor(question)
+      if (!answer) {
+        append({ role: 'user', content: question })
+        return
+      }
+      setMessages((prev) => [
+        ...prev,
+        { id: `u-${Date.now()}`, role: 'user', content: question },
+      ])
+      setCannedTyping(true)
+      if (cannedTimer.current) clearTimeout(cannedTimer.current)
+      cannedTimer.current = setTimeout(() => {
+        setMessages((prev) => [
+          ...prev,
+          { id: `a-${Date.now()}`, role: 'assistant', content: answer },
+        ])
+        setCannedTyping(false)
+      }, 650)
+    },
+    [append, setMessages],
+  )
+
+  // Limpia el temporizador de la respuesta pre-programada al desmontar.
+  useEffect(
+    () => () => {
+      if (cannedTimer.current) clearTimeout(cannedTimer.current)
+    },
+    [],
+  )
+
   // Envía la pregunta pendiente que dejó un chip de la landing.
   useEffect(() => {
-    if (pending && !isLoading) {
-      append({ role: 'user', content: pending })
+    if (pending && !busy) {
+      const q = pending
       consumePending()
+      deliverSuggested(q)
     }
-  }, [pending, isLoading, append, consumePending])
+  }, [pending, busy, deliverSuggested, consumePending])
 
   const onSuggested = (question: string) => {
-    if (isLoading) return
-    append({ role: 'user', content: question })
+    if (!busy) deliverSuggested(question)
+  }
+
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    if (busy) {
+      e.preventDefault()
+      return
+    }
+    handleSubmit(e)
   }
 
   const onReset = () => {
+    if (cannedTimer.current) clearTimeout(cannedTimer.current)
+    setCannedTyping(false)
     setMessages([])
     setMenuOpen(false)
   }
@@ -111,13 +161,13 @@ export function ChatWidget() {
             )}
           </header>
 
-          <ChatMessages messages={messages} isLoading={isLoading} onSuggested={onSuggested} />
+          <ChatMessages messages={messages} isLoading={busy} onSuggested={onSuggested} />
 
           <ChatInput
             value={input}
             onChange={handleInputChange}
-            onSubmit={handleSubmit}
-            disabled={isLoading}
+            onSubmit={onSubmit}
+            disabled={busy}
           />
 
           <div className="bg-panel pb-2 text-center text-[11px] text-coffee/40">
