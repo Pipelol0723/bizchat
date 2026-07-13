@@ -4,7 +4,7 @@ Widget de chatbot configurable con IA multi-proveedor (OpenAI, Claude, Gemini) q
 negocio puede embeber en su sitio web. El dueño define su negocio en un solo archivo y el bot
 responde a los clientes con contexto real: menú, horarios, servicios, ubicación y reservas.
 
-### 🔗 [Ver demo en vivo →](https://bizchat-delta.vercel.app)
+### 🔗 [Ver demo en vivo →](https://bizchat.pipelol.dev)
 
 **Demo:** _Café Noire_ — una cafetería ficticia (negocio de demostración) con menú, horarios y reservas.
 Abre el sitio, toca cualquier pregunta del hero y el asistente responde en streaming.
@@ -56,6 +56,7 @@ Basta con configurar **una** API key. El proveedor por defecto es Claude (`DEFAU
 | `ANTHROPIC_API_KEY` | Key de Anthropic / Claude (opcional) |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | Key de Google / Gemini (opcional) |
 | `DEFAULT_PROVIDER` | `openai` \| `anthropic` \| `google` |
+| `ALLOWED_ORIGINS` | **Recomendada.** Dominios permitidos para llamar a `/api/chat`, separados por comas (p. ej. `https://bizchat.pipelol.dev,https://sitio-del-cliente.com`). Sin ella, el endpoint acepta cualquier origen y la API key queda expuesta al abuso de costos. |
 
 ---
 
@@ -71,14 +72,12 @@ src/
 │   ├── ChatWidget.tsx        # Botón flotante + panel (useChat)
 │   ├── ChatMessages.tsx      # Lista de mensajes, estado vacío, typing
 │   ├── ChatInput.tsx         # Input + enviar
-│   ├── ProviderSelector.tsx  # Menú ⋯ (motor de IA + reiniciar)
 │   ├── ChatProvider.tsx      # Contexto: abrir chat / enviar pregunta desde la landing
 │   └── demo/                 # Secciones de la landing (hero, menú, CTA, lead capture, footer)
 ├── lib/
 │   ├── business-config.ts    # Config del negocio demo + system prompt
 │   ├── site-config.ts        # Datos del desarrollador + límites del demo
 │   ├── providers.ts          # Modelos por proveedor (servidor)
-│   ├── provider-meta.ts      # Etiquetas de proveedor (cliente)
 │   └── rate-limit.ts         # Rate-limit en memoria por IP
 └── types/index.ts            # Tipos compartidos
 ```

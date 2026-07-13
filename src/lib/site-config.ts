@@ -23,6 +23,10 @@ export const siteConfig = {
   demoLimits: {
     /** Máximo de caracteres aceptados por mensaje del usuario. */
     maxInputChars: 500,
+    /** Máximo de mensajes del historial que se aceptan por petición. */
+    maxMessages: 20,
+    /** Máximo de caracteres sumando todo el historial (evita payloads inflados). */
+    maxTotalChars: 8000,
     /** Máximo de tokens en la respuesta del modelo. */
     maxOutputTokens: 400,
     /** Mensajes permitidos por sesión/IP antes de redirigir al contacto. */
