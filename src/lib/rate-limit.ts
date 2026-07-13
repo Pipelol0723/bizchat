@@ -12,11 +12,25 @@ interface Bucket {
 
 const buckets = new Map<string, Bucket>()
 
-/** Obtiene un identificador de cliente a partir de las cabeceras del request. */
+/**
+ * Obtiene un identificador de cliente a partir de las cabeceras del request.
+ *
+ * En Vercel, `x-real-ip` lo fija la plataforma con la IP real del visitante y no
+ * es falsificable. `x-forwarded-for` SÍ es manipulable: su primer valor lo pone
+ * el propio cliente, así que tomarlo permitiría evadir el rate-limit rotándolo.
+ * Por eso se prefiere `x-real-ip` y solo se usa `x-forwarded-for` como respaldo,
+ * tomando el ÚLTIMO salto (el que añade el proxy de confianza), no el primero.
+ */
 export function clientKey(req: Request): string {
+  const realIp = req.headers.get('x-real-ip')
+  if (realIp) return realIp.trim()
+
   const fwd = req.headers.get('x-forwarded-for')
-  if (fwd) return fwd.split(',')[0].trim()
-  return req.headers.get('x-real-ip') || 'anonymous'
+  if (fwd) {
+    const hops = fwd.split(',').map((h) => h.trim()).filter(Boolean)
+    if (hops.length > 0) return hops[hops.length - 1]
+  }
+  return 'anonymous'
 }
 
 /**
