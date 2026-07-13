@@ -20,8 +20,9 @@ Abre el sitio, toca cualquier pregunta del hero y el asistente responde en strea
 - 🧠 **Multi-proveedor**: OpenAI, Anthropic (Claude) y Google (Gemini) con la misma API.
 - 🏪 **Configurable por negocio** desde un único archivo (`business-config.ts`).
 - 🛡️ **Guardrails**: el bot solo habla del negocio, no inventa datos ni revela su prompt.
-- 💸 **Control de costos**: límite de longitud, tope de tokens y rate-limit por IP. Al superar el
-  límite, el chat redirige al contacto del desarrollador → el tope se vuelve captación de leads.
+- 💸 **Control de costos**: límite de longitud, tope de tokens y rate-limit por IP (persistente con
+  Upstash Redis; cae a memoria si no está configurado). Al superar el límite, el chat redirige al
+  contacto del desarrollador → el tope se vuelve captación de leads.
 - 📱 **Responsive**: panel lateral en desktop, bottom-sheet en móvil.
 
 ---
@@ -57,6 +58,7 @@ Basta con configurar **una** API key. El proveedor por defecto es Claude (`DEFAU
 | `GOOGLE_GENERATIVE_AI_API_KEY` | Key de Google / Gemini (opcional) |
 | `DEFAULT_PROVIDER` | `openai` \| `anthropic` \| `google` |
 | `ALLOWED_ORIGINS` | **Recomendada.** Dominios permitidos para llamar a `/api/chat`, separados por comas (p. ej. `https://bizchat.pipelol.dev,https://sitio-del-cliente.com`). Sin ella, el endpoint acepta cualquier origen y la API key queda expuesta al abuso de costos. |
+| `KV_REST_API_URL` · `KV_REST_API_TOKEN` | Rate-limit persistente con Upstash Redis. En Vercel se inyectan solas al conectar la base; sin ellas el rate-limit cae a memoria por instancia. |
 
 ---
 

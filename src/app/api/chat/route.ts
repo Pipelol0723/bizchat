@@ -130,7 +130,7 @@ export async function POST(req: Request) {
   }
 
   // Rate-limit por IP: al superarlo, se redirige al contacto del desarrollador.
-  const { allowed } = checkRateLimit(clientKey(req))
+  const { allowed } = await checkRateLimit(clientKey(req))
   if (!allowed) {
     return cannedStream(demoLimitMessage())
   }
